@@ -1,11 +1,13 @@
 package ca.spottedleaf.moonrise.common.util;
 
 import ca.spottedleaf.concurrentutil.util.Priority;
+import ca.spottedleaf.moonrise.common.PlatformHooks;
 import ca.spottedleaf.moonrise.patches.chunk_system.level.ChunkSystemServerLevel;
 import ca.spottedleaf.moonrise.patches.chunk_system.level.chunk.ChunkSystemLevelChunk;
 import ca.spottedleaf.moonrise.patches.chunk_system.player.RegionizedPlayerChunkLoader;
 import ca.spottedleaf.moonrise.patches.chunk_system.world.ChunkSystemServerChunkCache;
 import ca.spottedleaf.moonrise.patches.chunk_tick_iteration.ChunkTickServerLevel;
+import ca.spottledleaf.moonrise.compat.lithium.LithiumHooks;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.FullChunkStatus;
 import net.minecraft.server.level.ServerLevel;
@@ -18,6 +20,8 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public abstract class BaseChunkSystemHooks implements ChunkSystemHooks {
+
+    private final boolean hasLithium = ((PlatformHooks) this).isModLoaded("lithium");
 
     @Override
     public void scheduleChunkTask(final ServerLevel level, final int chunkX, final int chunkZ, final Runnable run) {
@@ -101,6 +105,9 @@ public abstract class BaseChunkSystemHooks implements ChunkSystemHooks {
         ((ChunkSystemServerLevel)((ServerLevel)chunk.getLevel())).moonrise$getLoadedChunks().add(
             ((ChunkSystemLevelChunk)chunk).moonrise$getChunkAndHolder()
         );
+        if (this.hasLithium) {
+            LithiumHooks.onChunkAccessible((ServerLevel) chunk.getLevel(), chunk);
+        }
     }
 
     @Override
@@ -108,6 +115,9 @@ public abstract class BaseChunkSystemHooks implements ChunkSystemHooks {
         ((ChunkSystemServerLevel)((ServerLevel)chunk.getLevel())).moonrise$getLoadedChunks().remove(
             ((ChunkSystemLevelChunk)chunk).moonrise$getChunkAndHolder()
         );
+        if (this.hasLithium) {
+            LithiumHooks.onChunkInaccessible((ServerLevel) chunk.getLevel(), chunk.getPos());
+        }
     }
 
     @Override

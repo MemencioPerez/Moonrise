@@ -28,6 +28,7 @@ neoForge {
         moonrise {
             sourceSet sourceSets.main
             sourceSet rootProject.sourceSets.main
+            sourceSet rootProject.sourceSets.lithium
         }
     }
     runs {
@@ -46,6 +47,7 @@ neoForge {
 
 dependencies {
     runtimeOnly(project(":").sourceSets.main.output)
+    runtimeOnly(project(":").sourceSets.lithium.output)
     shadow(project(":"))
     compileOnly(project(":"))
 
