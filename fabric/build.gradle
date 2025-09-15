@@ -29,6 +29,8 @@ dependencies {
     modImplementation fabricApiLibs.lifecycle.events.v1
     include fabricApiLibs.command.api.v2
     include fabricApiLibs.base
+
+    modImplementation "dev.architectury:architectury-fabric:$rootProject.architectury_api_version"
 }
 
 processResources {

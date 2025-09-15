@@ -1,6 +1,7 @@
 package ca.spottedleaf.moonrise.mixin.chunk_system;
 
 import ca.spottedleaf.concurrentutil.util.Priority;
+import ca.spottedleaf.moonrise.common.PlatformHooks;
 import ca.spottedleaf.moonrise.common.list.ReferenceList;
 import ca.spottedleaf.moonrise.common.misc.NearbyPlayers;
 import ca.spottedleaf.moonrise.common.util.CoordinateUtils;
@@ -61,6 +62,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
@@ -513,15 +515,21 @@ abstract class ServerLevelMixin extends Level implements ChunkSystemServerLevel,
      * @reason Redirect to new entity manager
      * @author Spottedleaf
      */
-    @Redirect(
-            method = "addEntity",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/world/level/entity/PersistentEntitySectionManager;addNewEntity(Lnet/minecraft/world/level/entity/EntityAccess;)Z"
-            )
+    @Inject(
+        method = "addEntity",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/level/entity/PersistentEntitySectionManager;addNewEntity(Lnet/minecraft/world/level/entity/EntityAccess;)Z"
+        ),
+        cancellable = true,
+        order = 999
     )
-    private <T extends EntityAccess> boolean redirectAddEntityEntity(final PersistentEntitySectionManager<T> instance, final T entity) {
-        return this.moonrise$getEntityLookup().addNewEntity((Entity)entity);
+    private <T extends EntityAccess> void redirectAddEntityEntity(Entity entity, CallbackInfoReturnable<Boolean> cir) {
+        PlatformHooks platformHooks = PlatformHooks.get();
+
+        boolean allowed = platformHooks.onAddEntity(entity, (ServerLevel) (Object) this);
+
+        cir.setReturnValue(allowed && this.moonrise$getEntityLookup().addNewEntity(entity));
     }
 
     /**

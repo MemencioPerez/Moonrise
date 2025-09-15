@@ -57,6 +57,8 @@ public interface PlatformHooks {
 
     public void onChunkUnWatch(final ServerLevel world, final ChunkPos chunk, final ServerPlayer player);
 
+    public boolean onAddEntity(final Entity entity, final Level world);
+
     public void addToGetEntities(final Level world, final Entity entity, final AABB boundingBox, final Predicate<? super Entity> predicate,
                                  final List<Entity> into);
 

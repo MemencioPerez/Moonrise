@@ -57,6 +57,7 @@
             "mixin.math.fast_blockpos": false,
             "mixin.math.fast_util": false,
             "mixin.minimal_nonvanilla.collisions.empty_space": false,
+            "mixin.minimal_nonvanilla.spawning": false,
             "mixin.minimal_nonvanilla.world.expiring_chunk_tickets": false,
             "mixin.shapes.blockstate_cache": false,
             "mixin.shapes.optimized_matching": false,

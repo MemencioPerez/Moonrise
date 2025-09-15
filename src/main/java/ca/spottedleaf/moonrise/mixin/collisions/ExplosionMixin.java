@@ -28,11 +28,10 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.*;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -347,8 +346,8 @@ abstract class ExplosionMixin {
      * @reason Rewrite ray casting and seen fraction calculation for performance
      * @author Spottedleaf
      */
-    @Overwrite
-    public void explode() {
+    @Inject(method = "explode", at = @At("HEAD"), cancellable = true)
+    public void explode(CallbackInfo ci) {
         this.level.gameEvent(this.source, GameEvent.EXPLODE, new Vec3(this.x, this.y, this.z));
 
         this.blockCache = new Long2ObjectOpenHashMap<>();
@@ -514,5 +513,6 @@ abstract class ExplosionMixin {
         this.blockCache = null;
         this.chunkPosCache = null;
         this.chunkCache = null;
+        ci.cancel();
     }
 }

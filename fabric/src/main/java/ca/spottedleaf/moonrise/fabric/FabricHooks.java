@@ -3,6 +3,9 @@ package ca.spottedleaf.moonrise.fabric;
 import ca.spottedleaf.moonrise.common.PlatformHooks;
 import ca.spottedleaf.moonrise.common.util.ConfigHolder;
 import ca.spottedleaf.moonrise.patches.chunk_system.scheduling.NewChunkHolder;
+import dev.architectury.event.events.common.ChunkEvent;
+import dev.architectury.event.events.common.EntityEvent;
+import dev.architectury.event.events.common.ExplosionEvent;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
@@ -31,6 +34,7 @@ import java.util.function.Predicate;
 public final class FabricHooks implements PlatformHooks {
 
     private static final boolean HAS_FABRIC_LIFECYCLE_EVENTS = FabricLoader.getInstance().isModLoaded("fabric-lifecycle-events-v1");
+    private static final boolean HAS_ARCHITECTURY = FabricLoader.getInstance().isModLoaded("architectury");
 
     public interface OnExplosionDetonate {
         void onExplosion(final Level world, final Explosion explosion, final List<Entity> possiblyAffecting, final double diameter);
@@ -65,6 +69,9 @@ public final class FabricHooks implements PlatformHooks {
     @Override
     public void onExplosion(final Level world, final Explosion explosion, final List<Entity> possiblyAffecting, final double diameter) {
         ON_EXPLOSION_DETONATE.invoker().onExplosion(world, explosion, possiblyAffecting, diameter);
+        if (HAS_ARCHITECTURY) {
+            ExplosionEvent.DETONATE.invoker().explode(world, explosion, possiblyAffecting);
+        }
     }
 
     @Override
@@ -116,7 +123,9 @@ public final class FabricHooks implements PlatformHooks {
 
     @Override
     public void chunkSyncSave(final ServerLevel world, final ChunkAccess chunk, final CompoundTag data) {
-
+        if (HAS_ARCHITECTURY) {
+            ChunkEvent.SAVE_DATA.invoker().save(chunk, world, data);
+        }
     }
 
     @Override
@@ -127,6 +136,14 @@ public final class FabricHooks implements PlatformHooks {
     @Override
     public void onChunkUnWatch(final ServerLevel world, final ChunkPos chunk, final ServerPlayer player) {
 
+    }
+
+    @Override
+    public boolean onAddEntity(final Entity entity, final Level world) {
+        if (HAS_ARCHITECTURY) {
+            return EntityEvent.ADD.invoker().add(entity, world).isTrue();
+        }
+        return true;
     }
 
     @Override

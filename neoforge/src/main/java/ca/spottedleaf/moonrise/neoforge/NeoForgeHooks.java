@@ -116,6 +116,11 @@ public final class NeoForgeHooks implements PlatformHooks {
     }
 
     @Override
+    public boolean onAddEntity(final Entity entity, final Level world) {
+        return true;
+    }
+
+    @Override
     public void addToGetEntities(final Level world, final Entity entity, final AABB boundingBox, final Predicate<? super Entity> predicate,
                                  final List<Entity> into) {
         for (final PartEntity<?> part : world.getPartEntities()) {
